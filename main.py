@@ -9,7 +9,7 @@ from database import engine, SessionLocal, get_db
 from typing import List
 import time
 
-from routers import products
+from routes import products
 # Issue: Docker tries to start web and db simultaneously,
 # but db takes 5-10s
 # this prevents crashing & errors
