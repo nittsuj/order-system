@@ -130,13 +130,13 @@ def buy_product(product_id: int, user_id: int, quantity: int = 1, db: Session = 
         
         db.add(new_order)
         db.commit()
-        db.refresh(product)
+        db.refresh(new_order)
 
         # Implement Redis: Delete old cache
         cache_key = f"product_{product_id}"
         redis_client.delete(cache_key)
 
-        processing_order.delay(order_id=product.id)
+        processing_order.delay(order_id=new_order.id)
         
         return {
             "status": "success",
