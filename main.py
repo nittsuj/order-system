@@ -9,7 +9,7 @@ from database import engine, SessionLocal, get_db
 from typing import List
 import time
 
-from routes import products
+from routes import products, users
 # Issue: Docker tries to start web and db simultaneously,
 # but db takes 5-10s
 # this prevents crashing & errors
@@ -25,6 +25,7 @@ while True:
 app = FastAPI()
 
 app.include_router(products.router)
+app.include_router(users.router)
 
 @app.get("/")
 def root():
