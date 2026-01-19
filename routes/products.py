@@ -106,15 +106,18 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     return None
 
 @router.post("/buy/{product_id}")
-def buy_product(product_id: int, db: Session = Depends(get_db)):
+def buy_product(product_id: int, quantity: int = 1, db: Session = Depends(get_db)):
+    if quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
+
     # Database Locking, to solve race condition
     product = db.query(models.Product).filter(models.Product.id == product_id).with_for_update().first()
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-
-    if product.stock > 0:    
-        product.stock -= 1
+    
+    if product.stock >= quantity:    
+        product.stock -= quantity
         db.commit()
         db.refresh(product)
             
