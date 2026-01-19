@@ -1,16 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 from database import get_db
 import models
 from worker import processing_order
 import schemas
 
 router = APIRouter(
-    prefix="orders",
+    prefix="/orders",
     tags=["orders"]
 )
 
-@app.get("/", 
+@router.get("/", 
          response_model=List[schemas.ProductResponse])
 def read_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     products = db.query(models.Product).offset(skip).limit(limit).all()
