@@ -34,6 +34,8 @@ services:
     build: .
     container_name: ecommerce_worker
     command: celery -A worker.app worker --loglevel=info
+    volumes:
+      - .:/app
     environment:
       - "DATABASE_URL=mysql+pymysql://root:digital@db:3306/ecommerce_db"
       - "CELERY_BROKER_URL=redis://redis:6379/0"
