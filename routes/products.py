@@ -106,7 +106,7 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     return None
 
 @router.post("/buy/{product_id}")
-def buy_product(product_id: int, quantity: int = 1, db: Session = Depends(get_db)):
+def buy_product(product_id: int, user_id: int, quantity: int = 1, db: Session = Depends(get_db)):
     if quantity <= 0:
         raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
 
@@ -118,9 +118,20 @@ def buy_product(product_id: int, quantity: int = 1, db: Session = Depends(get_db
     
     if product.stock >= quantity:    
         product.stock -= quantity
+        
+        # Create New User
+        new_order = models.Order(
+            status ="pending",
+            users_id = user_id
+        )
+        
+        # links product to order
+        new_order.products.append(product)
+        
+        db.add(new_order)
         db.commit()
         db.refresh(product)
-            
+
         # Implement Redis: Delete old cache
         cache_key = f"product_{product_id}"
         redis_client.delete(cache_key)
@@ -128,11 +139,14 @@ def buy_product(product_id: int, quantity: int = 1, db: Session = Depends(get_db
         processing_order.delay(order_id=product.id)
         
         return {
-            "status": "success", 
+            "status": "success",
+            "order_id": new_order.id,
             "message": "Order placed! Processing in background.",
             "remaining_stock": product.stock
         }
     
     else:
-        return {"status": "failed", 
-                "message": "Out of stock!"}
+        raise HTTPException(
+            status_code=400,
+            detail="Out of Stock!"
+        )
