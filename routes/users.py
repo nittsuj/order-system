@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 import models
@@ -6,7 +8,7 @@ from worker import processing_order
 import schemas
 
 router = APIRouter(
-    prefix="users",
+    prefix="/users",
     tags=["users"]
 )
 
