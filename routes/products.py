@@ -1,6 +1,7 @@
 import json
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 import models
@@ -90,7 +91,7 @@ def update_product(product_id: int, product_update: schemas.ProductCreate, db: S
 @router.delete("/{product_id}",
                status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(models.Product).filter(models.Product.id == product_id)
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 
